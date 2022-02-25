@@ -1,0 +1,64 @@
+package org.eclipse.elk.alg.layered;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
+
+import org.eclipse.elk.core.service.LayoutMapping;
+import org.eclipse.elk.graph.ElkNode;
+import org.eclipse.elk.graph.properties.IProperty;
+import org.eclipse.elk.graph.properties.Property;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.sirius.diagram.elk.GmfLayoutCommand;
+import org.eclipse.sirius.diagram.elk.IELKLayoutExtension;
+import org.eclipse.sirius.diagram.ui.edit.api.part.AbstractDiagramNodeEditPart;
+import org.eclipse.sirius.diagram.ui.internal.edit.parts.DNodeEditPart;
+import org.eclipse.sirius.diagram.ui.internal.edit.parts.DNodeList2EditPart;
+import org.eclipse.sirius.diagram.ui.internal.edit.parts.DNodeListEditPart;
+import org.eclipse.elk.graph.ElkGraphElement;
+
+/**
+ * Extension point used to provide the "Object Type" (Data Element, Constraint etc) of a node to LayoutProvider
+ * */
+public class ELKLayoutExtension implements IELKLayoutExtension {
+
+	public ELKLayoutExtension() {
+		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	// Runs before LayoutProvider runs layout
+	public void beforeELKLayout(LayoutMapping layoutMapping) {
+		// Adds a new property named ObjectName. This property represents the Sirius element name (Data Element, Constraint, etc)
+		//ArrayList<ElkNode> nodes = new ArrayList<>(layoutMapping.getLayoutGraph().getChildren());
+	    System.out.println("Starting Preprocessing Step");
+		for (Entry<ElkGraphElement, Object> entry : layoutMapping.getGraphMap().entrySet()) {
+		    Object editPart = entry.getValue();
+		    
+		    if (editPart instanceof DNodeListEditPart) {
+		        EObject siriusDiagramElement = ((DNodeListEditPart) editPart).resolveTargetSemanticElement();
+		        String wfElementName = siriusDiagramElement.eClass().getName();
+		        IProperty<String> property = new Property("wfObjectType");
+		        entry.getKey().setProperty(property, wfElementName);
+		    } else if (editPart instanceof DNodeEditPart) {
+		    	EObject siriusDiagramElement = ((DNodeEditPart) editPart).resolveTargetSemanticElement();
+		        String wfElementName = siriusDiagramElement.eClass().getName();
+		        IProperty<String> property = new Property("wfObjectType");
+		        entry.getKey().setProperty(property, wfElementName);
+			}
+		}
+	}
+
+	@Override
+	public void afterELKLayout(LayoutMapping layoutMapping) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void afterGMFCommandApplied(GmfLayoutCommand gmfLayoutCommand, LayoutMapping layoutMapping) {
+		// TODO Auto-generated method stub
+		
+	}
+
+}
